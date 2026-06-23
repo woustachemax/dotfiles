@@ -28,7 +28,6 @@ LazyVim will bootstrap everything
 This config wouldn't exist without these people:
 
 - [craftzdog](https://github.com/craftzdog/dotfiles-public) - Solarized Osaka theme, UI config inspiration, bufferline setup
-- [devaslife](https://www.youtube.com/@devaslife) - the YouTube rabbit hole that started all this
 - [folke](https://github.com/folke) - LazyVim, lazy.nvim, noice.nvim, snacks.nvim and basically half the nvim plugin ecosystem
 - [LazyVim](https://github.com/LazyVim/LazyVim) - the starter template this is built on
 
