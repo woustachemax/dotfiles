@@ -91,3 +91,4 @@ keymap.set("n", "<leader>q", "<cmd>q<CR>", { desc = "Quit" })
 keymap.set("n", "<leader>bD", "<cmd>bd!<CR>", { desc = "Force delete buffer" })
 
 keymap.set("t", "<Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
+vim.keymap.set("n", "<leader>e", "<cmd>Neotree toggle<CR>", { desc = "Toggle Neo-tree" })
