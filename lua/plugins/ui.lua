@@ -80,101 +80,104 @@ return {
     },
   },
 
-  {
-    "akinsho/bufferline.nvim",
-    event = "VeryLazy",
-    keys = {
-      { "<Tab>", "<Cmd>BufferLineCycleNext<CR>", desc = "Next buffer" },
-      { "<S-Tab>", "<Cmd>BufferLineCyclePrev<CR>", desc = "Prev buffer" },
-      { "<leader>bp", "<Cmd>BufferLineTogglePin<CR>", desc = "Toggle Pin" },
-      { "<leader>bo", "<Cmd>BufferLineCloseOthers<CR>", desc = "Close other buffers" },
-    },
-    opts = {
-      options = {
-        mode = "buffers",
-        diagnostics = "nvim_lsp",
-        diagnostics_indicator = function(_, _, diag)
-          local icons = { Error = " ", Warn = " ", Info = " " }
-          local ret = (diag.error and icons.Error .. diag.error .. " " or "")
-            .. (diag.warning and icons.Warn .. diag.warning or "")
-          return vim.trim(ret)
-        end,
-        show_buffer_close_icons = false,
-        show_close_icon = false,
-        always_show_bufferline = true,
-        separator_style = "thin",
-        offsets = {
-          {
-            filetype = "neo-tree",
-            text = "Explorer",
-            text_align = "left",
-            separator = true,
-          },
-        },
-      },
-    },
-  },
+  { "akinsho/bufferline.nvim", enabled = false },
 
-  {
-    "b0o/incline.nvim",
-    dependencies = { "craftzdog/solarized-osaka.nvim", "nvim-tree/nvim-web-devicons" },
-    event = "BufReadPre",
-    priority = 1200,
-    config = function()
-      local has_colors, colors = pcall(function()
-        return require("solarized-osaka.colors").setup()
-      end)
-      local hl_normal = { guifg = "#1a1b26", guibg = "#bb9af7" }
-      local hl_nc = { guifg = "#9d7cd8", guibg = "#1a1b26" }
-      if has_colors then
-        hl_normal = { guibg = colors.magenta500, guifg = colors.base04 }
-        hl_nc = { guifg = colors.violet500, guibg = colors.base03 }
-      end
-      require("incline").setup({
-        highlight = {
-          groups = {
-            InclineNormal = hl_normal,
-            InclineNormalNC = hl_nc,
-          },
-        },
-        window = { margin = { vertical = 0, horizontal = 1 } },
-        hide = {
-          cursorline = true,
-        },
-        render = function(props)
-          local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(props.buf), ":t")
-          if filename == "" then
-            filename = "[No Name]"
-          end
-          if vim.bo[props.buf].modified then
-            filename = "[+] " .. filename
-          end
-          local icon, color = require("nvim-web-devicons").get_icon_color(filename)
-          return { { icon or "", guifg = color }, { " " }, { filename } }
-        end,
-      })
-    end,
-  },
+  { "b0o/incline.nvim", enabled = false },
 
   {
     "nvim-lualine/lualine.nvim",
     opts = function(_, opts)
-      local ok, LazyVim = pcall(require, "lazyvim.util")
-      if ok and LazyVim and LazyVim.lualine and LazyVim.lualine.pretty_path then
-        opts.sections = opts.sections or {}
-        opts.sections.lualine_c = opts.sections.lualine_c or {}
-        opts.sections.lualine_c[4] = {
-          LazyVim.lualine.pretty_path({
-            length = 0,
-            relative = "cwd",
-            modified_hl = "MatchParen",
-            directory_hl = "",
-            filename_hl = "Bold",
-            modified_sign = "",
-            readonly_icon = " 󰌾 ",
-          }),
+      local c = {
+        fg = "#9aa7d0",
+        dim = "#4f5b7a",
+        green = "#c3e88d",
+        pink = "#f5a0d3",
+        yellow = "#e0af68",
+        red = "#f7768e",
+      }
+
+      local function mode_theme(color)
+        return {
+          a = { fg = color, bg = "NONE", gui = "bold" },
+          b = { fg = c.fg, bg = "NONE" },
+          c = { fg = c.fg, bg = "NONE" },
         }
       end
+
+      opts.options = opts.options or {}
+      opts.options.theme = {
+        normal = mode_theme(c.fg),
+        insert = mode_theme(c.green),
+        visual = mode_theme(c.pink),
+        replace = mode_theme(c.red),
+        command = mode_theme(c.yellow),
+        terminal = mode_theme(c.green),
+        inactive = mode_theme(c.dim),
+      }
+      opts.options.component_separators = ""
+      opts.options.section_separators = ""
+
+      local short = {
+        n = "NOR",
+        i = "INS",
+        v = "SEL",
+        V = "SEL",
+        ["\22"] = "SEL",
+        s = "SEL",
+        S = "SEL",
+        c = "CMD",
+        R = "REP",
+        t = "TRM",
+      }
+
+      local path_component = "filename"
+      local ok, LazyVim = pcall(require, "lazyvim.util")
+      if ok and LazyVim and LazyVim.lualine and LazyVim.lualine.pretty_path then
+        path_component = LazyVim.lualine.pretty_path({
+          length = 0,
+          relative = "cwd",
+          modified_hl = "MatchParen",
+          directory_hl = "",
+          filename_hl = "Bold",
+          modified_sign = "",
+          readonly_icon = " 󰌾 ",
+        })
+      end
+
+      opts.sections = {
+        lualine_a = {
+          {
+            function()
+              return short[vim.api.nvim_get_mode().mode:sub(1, 1)] or "NOR"
+            end,
+            padding = { left = 1, right = 1 },
+          },
+        },
+        lualine_b = {},
+        lualine_c = { path_component },
+        lualine_x = {
+          {
+            "diagnostics",
+            symbols = { error = "● ", warn = "● ", info = "● ", hint = "● " },
+          },
+        },
+        lualine_y = {
+          {
+            function()
+              return (vim.fn.wordcount().visual_chars or 1) .. " sel"
+            end,
+          },
+        },
+        lualine_z = {
+          {
+            function()
+              local pos = vim.api.nvim_win_get_cursor(0)
+              return pos[1] .. ":" .. (pos[2] + 1)
+            end,
+            padding = { left = 1, right = 1 },
+          },
+        },
+      }
     end,
   },
 

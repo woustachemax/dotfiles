@@ -8,8 +8,8 @@ local opt = vim.opt
 opt.encoding = "utf-8"
 opt.fileencoding = "utf-8"
 opt.number = true
-opt.relativenumber = true
-opt.cursorline = true
+opt.relativenumber = false
+opt.cursorline = false
 opt.signcolumn = "yes"
 opt.title = true
 opt.titlestring = "%<%F%=%l/%L - nvim"
@@ -40,6 +40,7 @@ opt.laststatus = 3
 opt.pumblend = 10
 opt.pumheight = 12
 opt.winblend = 0
+opt.winborder = "rounded"
 opt.termguicolors = true
 
 opt.splitbelow = true
@@ -68,7 +69,7 @@ opt.fillchars = {
   fold = " ",
   foldsep = " ",
   diff = "╱",
-  eob = " ",
+  eob = "~",
 }
 
 opt.list = true
